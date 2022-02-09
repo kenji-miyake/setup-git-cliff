@@ -2,7 +2,7 @@
 
 ## Usage
 
-```sh
+```yaml
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up git-cliff
-        uses: ./
+        uses: kenji-miyake/setup-git-cliff@main
 
       - name: Run git-cliff
         run: |
