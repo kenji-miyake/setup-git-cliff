@@ -1,0 +1,11 @@
+name: Setup git-cliff
+description: Set up a specific version of git-cliff
+author: Kenji Miyake
+inputs:
+  version:
+    required: false
+    description: The version of git-cliff
+    default: 0.5.0
+runs:
+  using: node16
+  main: dist/index.js

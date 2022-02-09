@@ -1,8 +1,11 @@
-# setup-git-cliff
+name: test
 
-## Usage
+on:
+  pull_request:
+  schedule:
+    - cron: 0 0 * * 0
+  workflow_dispatch:
 
-```sh
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -16,14 +19,3 @@ jobs:
       - name: Run git-cliff
         run: |
           git cliff
-```
-
-## Inputs
-
-| Name    | Required | Description                 |
-| ------- | -------- | --------------------------- |
-| version | false    | The version of `git-cliff`. |
-
-## Outputs
-
-None.
