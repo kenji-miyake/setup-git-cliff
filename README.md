@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up git-cliff
-        uses: kenji-miyake/setup-git-cliff@main
+        uses: kenji-miyake/setup-git-cliff@v1
 
       - name: Run git-cliff
         run: |
