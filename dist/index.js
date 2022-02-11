@@ -5571,23 +5571,15 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const os = __nccwpck_require__(37);
 const path = __nccwpck_require__(17);
 const core = __nccwpck_require__(186);
 const tc = __nccwpck_require__(784);
 async function main() {
     const version = core.getInput("version");
-    let arch = os.arch();
-    if (arch === "x64") {
-        arch = "x86_64";
-    }
-    let platformString = os.platform();
-    if (platformString === "linux") {
-        platformString = "unknown-linux-gnu";
-    }
+    const targetPlatform = core.getInput("target-platform");
     let cachedPath = tc.find("git-cliff", version);
     if (!cachedPath) {
-        const url = `https://github.com/orhun/git-cliff/releases/download/v${version}/git-cliff-${version}-${arch}-${platformString}.tar.gz`;
+        const url = `https://github.com/orhun/git-cliff/releases/download/v${version}/git-cliff-${version}-${targetPlatform}.tar.gz`;
         const tarPath = await tc.downloadTool(url);
         const extractedFolder = await tc.extractTar(tarPath, "git-cliff");
         const binFolder = path.join(extractedFolder, `git-cliff-${version}`);
