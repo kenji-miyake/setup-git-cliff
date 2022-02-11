@@ -12222,7 +12222,7 @@ async function main() {
     if (!cachedPath) {
         const url = `https://github.com/orhun/git-cliff/releases/download/v${version}/git-cliff-${version}-${targetPlatform}.tar.gz`;
         const tarPath = await tc.downloadTool(url);
-        const extractedFolder = await tc.extractTar(tarPath, "git-cliff");
+        const extractedFolder = await tc.extractTar(tarPath, "/tmp/git-cliff");
         const binFolder = path.join(extractedFolder, `git-cliff-${version}`);
         cachedPath = await tc.cacheDir(binFolder, "git-cliff", version);
     }
