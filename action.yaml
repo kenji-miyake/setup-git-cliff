@@ -5,7 +5,7 @@ inputs:
   version:
     required: false
     description: The version of git-cliff
-    default: 0.5.0
+    default: latest
   target-platform:
     required: false
     description: The target platform

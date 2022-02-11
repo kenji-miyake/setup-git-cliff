@@ -1,11 +1,21 @@
-import * as os from "os";
 import * as path from "path";
 
 import * as core from "@actions/core";
 import * as tc from "@actions/tool-cache";
+import { Octokit } from "@octokit/rest";
 
 async function main() {
-  const version = core.getInput("version");
+  const octokit = new Octokit();
+
+  let version = core.getInput("version");
+  if (version === "latest") {
+    const latestRelease = await octokit.repos.getLatestRelease({
+      owner: "orhun",
+      repo: "git-cliff",
+    });
+    version = latestRelease.data.tag_name.replace("v", "");
+  }
+
   const targetPlatform = core.getInput("target-platform");
 
   let cachedPath = tc.find("git-cliff", version);
