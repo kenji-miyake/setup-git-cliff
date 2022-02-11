@@ -6,20 +6,11 @@ import * as tc from "@actions/tool-cache";
 
 async function main() {
   const version = core.getInput("version");
-
-  let arch = os.arch();
-  if (arch === "x64") {
-    arch = "x86_64";
-  }
-
-  let platformString: string = os.platform();
-  if (platformString === "linux") {
-    platformString = "unknown-linux-gnu";
-  }
+  const targetPlatform = core.getInput("target-platform");
 
   let cachedPath = tc.find("git-cliff", version);
   if (!cachedPath) {
-    const url = `https://github.com/orhun/git-cliff/releases/download/v${version}/git-cliff-${version}-${arch}-${platformString}.tar.gz`;
+    const url = `https://github.com/orhun/git-cliff/releases/download/v${version}/git-cliff-${version}-${targetPlatform}.tar.gz`;
     const tarPath = await tc.downloadTool(url);
     const extractedFolder = await tc.extractTar(tarPath, "git-cliff");
     const binFolder = path.join(extractedFolder, `git-cliff-${version}`);
