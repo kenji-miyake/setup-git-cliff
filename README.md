@@ -1,5 +1,7 @@
 # setup-git-cliff
 
+This action sets up [orhun/git-cliff](https://github.com/orhun/git-cliff).
+
 ## Usage
 
 ```yaml
