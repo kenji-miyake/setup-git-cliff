@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Run generate-changelog
         id: generate-changelog
-        uses: autowarefoundation/autoware-github-actions/generate-changelog@tier4/proposal
+        uses: autowarefoundation/autoware-github-actions/generate-changelog@v1
 
       - name: Release to GitHub
         run: |
