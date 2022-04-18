@@ -5,12 +5,18 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 1
+    labels:
+      - bot
+      - github-actions
 
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: daily
     open-pull-requests-limit: 1
+    labels:
+      - bot
+      - npm
     ignore:
       - dependency-name: "*"
         update-types:
