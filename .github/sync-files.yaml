@@ -1,6 +1,6 @@
 - repository: autowarefoundation/autoware
   files:
-    - source: .github/stale.yml  
+    - source: .github/stale.yml
     - source: .github/workflows/semantic-pull-request.yaml
     - source: .github/workflows/spell-check-differential.yaml
     - source: .github/workflows/sync-files.yaml
