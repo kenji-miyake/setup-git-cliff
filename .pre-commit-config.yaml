@@ -39,13 +39,13 @@ repos:
       - id: shellcheck
 
   - repo: https://github.com/scop/pre-commit-shfmt
-    rev: v3.4.3-1
+    rev: v3.5.0-1
     hooks:
       - id: shfmt
         args: [-w, -s, -i=4]
 
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.14.0
+    rev: v8.16.0
     hooks:
       - id: eslint
         files: \.ts$
