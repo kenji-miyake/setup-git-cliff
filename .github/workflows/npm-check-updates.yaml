@@ -9,6 +9,13 @@ jobs:
   npm-check-updates:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate token
+        id: generate-token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
+
       - name: Update npm dependencies
         uses: technote-space/create-pr-action@v2
         with:
@@ -20,3 +27,4 @@ jobs:
           COMMIT_MESSAGE: "chore: update npm dependencies"
           PR_BRANCH_NAME: npm-check-updates
           PR_TITLE: "chore: update npm dependencies"
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
