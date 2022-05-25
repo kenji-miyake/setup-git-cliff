@@ -8,16 +8,3 @@ updates:
     labels:
       - bot
       - github-actions
-
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 1
-    labels:
-      - bot
-      - npm
-    ignore:
-      - dependency-name: "*"
-        update-types:
-          - version-update:semver-patch

@@ -1,0 +1,22 @@
+name: npm-check-updates
+
+on:
+  schedule:
+    - cron: 0 0 * * *
+  workflow_dispatch:
+
+jobs:
+  npm-check-updates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update npm dependencies
+        uses: technote-space/create-pr-action@v2
+        with:
+          EXECUTE_COMMANDS: |
+            npx npm-check-updates -u --packageFile package.json
+            npm install
+            npm upgrade
+            npm audit
+          COMMIT_MESSAGE: "chore: update npm dependencies"
+          PR_BRANCH_NAME: npm-check-updates
+          PR_TITLE: "chore: update npm dependencies"
