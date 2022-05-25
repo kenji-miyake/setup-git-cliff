@@ -24,6 +24,7 @@ jobs:
             npm install
             npm upgrade
             npm audit
+            npm run build
           COMMIT_MESSAGE: "chore: update npm dependencies"
           PR_BRANCH_NAME: npm-check-updates
           PR_TITLE: "chore: update npm dependencies"
