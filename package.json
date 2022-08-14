@@ -20,14 +20,14 @@
   },
   "homepage": "https://github.com/kenji-miyake/setup-git-cliff#readme",
   "dependencies": {
-    "@actions/core": "^1.9.0",
+    "@actions/core": "^1.9.1",
     "@actions/tool-cache": "^2.0.1"
   },
   "devDependencies": {
     "@octokit/rest": "^19.0.3",
-    "@types/node": "^18.6.4",
-    "@typescript-eslint/eslint-plugin": "^5.32.0",
-    "@typescript-eslint/parser": "^5.32.0",
+    "@types/node": "^18.7.3",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
     "@vercel/ncc": "^0.34.0",
     "eslint": "^8.21.0",
     "eslint-config-prettier": "^8.5.0",
