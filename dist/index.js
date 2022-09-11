@@ -4532,8 +4532,6 @@ function parse(options) {
     } else {
       if (Object.keys(remainingParameters).length) {
         body = remainingParameters;
-      } else {
-        headers["content-length"] = 0;
       }
     }
   } // default content-type for JSON if body is set
@@ -4576,7 +4574,7 @@ function withDefaults(oldDefaults, newDefaults) {
   });
 }
 
-const VERSION = "7.0.1";
+const VERSION = "7.0.2";
 
 const userAgent = `octokit-endpoint.js/${VERSION} ${universalUserAgent.getUserAgent()}`; // DEFAULTS has all properties set that EndpointOptions has, except url.
 // So we use RequestParameters and add method as additional required property.
@@ -4736,7 +4734,7 @@ exports.withCustomRequest = withCustomRequest;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-const VERSION = "4.2.0";
+const VERSION = "4.2.3";
 
 /**
  * Some “list” response that can be paginated have a different response structure
@@ -5411,8 +5409,10 @@ const Endpoints = {
     checkMembershipForUser: ["GET /orgs/{org}/members/{username}"],
     checkPublicMembershipForUser: ["GET /orgs/{org}/public_members/{username}"],
     convertMemberToOutsideCollaborator: ["PUT /orgs/{org}/outside_collaborators/{username}"],
+    createCustomRole: ["POST /orgs/{org}/custom_roles"],
     createInvitation: ["POST /orgs/{org}/invitations"],
     createWebhook: ["POST /orgs/{org}/hooks"],
+    deleteCustomRole: ["DELETE /orgs/{org}/custom_roles/{role_id}"],
     deleteWebhook: ["DELETE /orgs/{org}/hooks/{hook_id}"],
     enableOrDisableSecurityProductOnAllOrgRepos: ["POST /orgs/{org}/{security_product}/{enablement}"],
     get: ["GET /orgs/{org}"],
@@ -5426,6 +5426,7 @@ const Endpoints = {
     listBlockedUsers: ["GET /orgs/{org}/blocks"],
     listCustomRoles: ["GET /organizations/{organization_id}/custom_roles"],
     listFailedInvitations: ["GET /orgs/{org}/failed_invitations"],
+    listFineGrainedPermissions: ["GET /orgs/{org}/fine_grained_permissions"],
     listForAuthenticatedUser: ["GET /user/orgs"],
     listForUser: ["GET /users/{username}/orgs"],
     listInvitationTeams: ["GET /orgs/{org}/invitations/{invitation_id}/teams"],
@@ -5448,6 +5449,7 @@ const Endpoints = {
     setPublicMembershipForAuthenticatedUser: ["PUT /orgs/{org}/public_members/{username}"],
     unblockUser: ["DELETE /orgs/{org}/blocks/{username}"],
     update: ["PATCH /orgs/{org}"],
+    updateCustomRole: ["PATCH /orgs/{org}/custom_roles/{role_id}"],
     updateMembershipForAuthenticatedUser: ["PATCH /user/memberships/orgs/{org}"],
     updateWebhook: ["PATCH /orgs/{org}/hooks/{hook_id}"],
     updateWebhookConfigForOrg: ["PATCH /orgs/{org}/hooks/{hook_id}/config"]
@@ -5912,7 +5914,7 @@ const Endpoints = {
   }
 };
 
-const VERSION = "6.4.1";
+const VERSION = "6.5.2";
 
 function endpointsToMethods(octokit, endpointsMap) {
   const newMethods = {};
