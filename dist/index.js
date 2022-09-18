@@ -4734,7 +4734,7 @@ exports.withCustomRequest = withCustomRequest;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-const VERSION = "4.2.3";
+const VERSION = "4.3.1";
 
 /**
  * Some “list” response that can be paginated have a different response structure
@@ -5914,7 +5914,7 @@ const Endpoints = {
   }
 };
 
-const VERSION = "6.5.2";
+const VERSION = "6.6.2";
 
 function endpointsToMethods(octokit, endpointsMap) {
   const newMethods = {};
