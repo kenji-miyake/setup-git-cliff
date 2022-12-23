@@ -17,4 +17,4 @@ jobs:
 
       - name: Check diff
         run: |
-          git diff dist/ || exit 1
+          git diff --exit-code dist/ || exit 1
