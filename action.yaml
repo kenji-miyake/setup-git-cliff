@@ -2,6 +2,10 @@ name: Setup git-cliff
 description: Set up a specific version of git-cliff
 author: Kenji Miyake
 inputs:
+  token:
+    description: The token for GitHub API
+    default: ${{ github.token }}
+    required: false
   version:
     required: false
     description: The version of git-cliff

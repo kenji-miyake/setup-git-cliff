@@ -5,7 +5,7 @@ import * as tc from "@actions/tool-cache";
 import { Octokit } from "@octokit/rest";
 
 async function main() {
-  const octokit = new Octokit();
+  const octokit = new Octokit({ auth: core.getInput("token") });
 
   let version = core.getInput("version");
   if (version === "latest") {
