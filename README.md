@@ -20,12 +20,6 @@ jobs:
           git cliff
 ```
 
-## Inputs
+## Action inputs and outputs
 
-| Name    | Required | Description                 |
-| ------- | -------- | --------------------------- |
-| version | false    | The version of `git-cliff`. |
-
-## Outputs
-
-None.
+Refer to [action.yaml](./action.yaml).
