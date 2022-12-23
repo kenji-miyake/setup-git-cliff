@@ -13275,7 +13275,7 @@ const core = __nccwpck_require__(2186);
 const tc = __nccwpck_require__(7784);
 const rest_1 = __nccwpck_require__(5375);
 async function main() {
-    const octokit = new rest_1.Octokit();
+    const octokit = new rest_1.Octokit({ auth: core.getInput("token") });
     let version = core.getInput("version");
     if (version === "latest") {
         const latestRelease = await octokit.repos.getLatestRelease({
