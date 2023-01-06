@@ -24,19 +24,17 @@ jobs:
 
 Refer to [action.yaml](./action.yaml).
 
-### Skip Authentication
+### Skip authentication
 
 By default, this action will use the `${{ github.token }}` context variable to authenticate to GitHub.
 
-This could result in a `Bad credentials` exception if the token used by the job is not valid for
-<https://github.com/>. An example where this happens is if this action is running on self-hosted
-runner that's connected to a GitHub Enterprise Server instance.
+This could result in a `Bad credentials` exception if the action is running on a self-hosted runner connected to a GitHub Enterprise Server instance.
 
-In case, you can explicitly set the token to `null` to perform an unauthenticated request:
+To avoid this, you can explicitly set the token to `null` to perform an unauthenticated request:
 
 ```yaml
 - name: Set up git-cliff
-  uses: kenji-miyake/setup-git-cliff@v1.1.0
+  uses: kenji-miyake/setup-git-cliff@v1
   with:
     token: null
 ```
