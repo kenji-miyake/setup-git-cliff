@@ -13288,6 +13288,7 @@ async function main() {
     let cachedPath = tc.find("git-cliff", version);
     if (!cachedPath) {
         const url = `https://github.com/orhun/git-cliff/releases/download/v${version}/git-cliff-${version}-${targetPlatform}.tar.gz`;
+        core.info(`Downloading ${url}`);
         const tarPath = await tc.downloadTool(url);
         const extractedFolder = await tc.extractTar(tarPath, "/tmp/git-cliff");
         const binFolder = path.join(extractedFolder, `git-cliff-${version}`);
