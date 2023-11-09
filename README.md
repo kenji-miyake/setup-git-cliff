@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up git-cliff
-        uses: kenji-miyake/setup-git-cliff@v1
+        uses: kenji-miyake/setup-git-cliff@v2
 
       - name: Run git-cliff
         run: |
@@ -34,7 +34,7 @@ To avoid this, you can explicitly set the token to `null` to perform an unauthen
 
 ```yaml
 - name: Set up git-cliff
-  uses: kenji-miyake/setup-git-cliff@v1
+  uses: kenji-miyake/setup-git-cliff@v2
   with:
     token: null
 ```
