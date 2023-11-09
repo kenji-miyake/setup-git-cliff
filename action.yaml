@@ -15,5 +15,5 @@ inputs:
     description: The target platform
     default: x86_64-unknown-linux-gnu
 runs:
-  using: node16
+  using: node20
   main: dist/index.js
