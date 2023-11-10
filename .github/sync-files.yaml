@@ -2,6 +2,12 @@
   files:
     - source: .github/stale.yml
     - source: .github/workflows/github-release.yaml
+      pre-commands: |
+        sd \
+        "       uses: autowarefoundation/autoware-github-actions/generate-changelog@v1" \
+        "       uses: autowarefoundation/autoware-github-actions/generate-changelog@v1
+                with:
+                  git-cliff-config: cliff.toml" {source}
     - source: .github/workflows/semantic-pull-request.yaml
     - source: .github/workflows/spell-check-differential.yaml
     - source: .github/workflows/sync-files.yaml
