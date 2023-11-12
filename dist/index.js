@@ -6283,7 +6283,7 @@ __export(dist_src_exports, {
 module.exports = __toCommonJS(dist_src_exports);
 
 // pkg/dist-src/version.js
-var VERSION = "9.1.2";
+var VERSION = "9.1.3";
 
 // pkg/dist-src/normalize-paginated-list-response.js
 function normalizePaginatedListResponse(response) {
@@ -6740,7 +6740,7 @@ __export(dist_src_exports, {
 module.exports = __toCommonJS(dist_src_exports);
 
 // pkg/dist-src/version.js
-var VERSION = "10.1.2";
+var VERSION = "10.1.3";
 
 // pkg/dist-src/generated/endpoints.js
 var Endpoints = {
@@ -8950,7 +8950,7 @@ var import_endpoint = __nccwpck_require__(9440);
 var import_universal_user_agent = __nccwpck_require__(5030);
 
 // pkg/dist-src/version.js
-var VERSION = "8.1.4";
+var VERSION = "8.1.5";
 
 // pkg/dist-src/fetch-wrapper.js
 var import_is_plain_object = __nccwpck_require__(3287);
@@ -9072,7 +9072,7 @@ function fetchWrapper(requestOptions) {
 async function getResponseData(response) {
   const contentType = response.headers.get("content-type");
   if (/application\/json/.test(contentType)) {
-    return response.json();
+    return response.json().catch(() => response.text()).catch(() => "");
   }
   if (!contentType || /^text\/|charset=utf-8$/.test(contentType)) {
     return response.text();
