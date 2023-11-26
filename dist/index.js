@@ -4167,9 +4167,14 @@ var import_graphql = __nccwpck_require__(8467);
 var import_auth_token = __nccwpck_require__(334);
 
 // pkg/dist-src/version.js
-var VERSION = "5.0.1";
+var VERSION = "5.0.2";
 
 // pkg/dist-src/index.js
+var noop = () => {
+};
+var consoleWarn = console.warn.bind(console);
+var consoleError = console.error.bind(console);
+var userAgentTrail = `octokit-core.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`;
 var Octokit = class {
   static {
     this.VERSION = VERSION;
@@ -4230,10 +4235,7 @@ var Octokit = class {
         format: ""
       }
     };
-    requestDefaults.headers["user-agent"] = [
-      options.userAgent,
-      `octokit-core.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`
-    ].filter(Boolean).join(" ");
+    requestDefaults.headers["user-agent"] = options.userAgent ? `${options.userAgent} ${userAgentTrail}` : userAgentTrail;
     if (options.baseUrl) {
       requestDefaults.baseUrl = options.baseUrl;
     }
@@ -4247,12 +4249,10 @@ var Octokit = class {
     this.graphql = (0, import_graphql.withCustomRequest)(this.request).defaults(requestDefaults);
     this.log = Object.assign(
       {
-        debug: () => {
-        },
-        info: () => {
-        },
-        warn: console.warn.bind(console),
-        error: console.error.bind(console)
+        debug: noop,
+        info: noop,
+        warn: consoleWarn,
+        error: consoleError
       },
       options.log
     );
@@ -4289,9 +4289,9 @@ var Octokit = class {
       this.auth = auth;
     }
     const classConstructor = this.constructor;
-    classConstructor.plugins.forEach((plugin) => {
-      Object.assign(this, plugin(this, options));
-    });
+    for (let i = 0; i < classConstructor.plugins.length; ++i) {
+      Object.assign(this, classConstructor.plugins[i](this, options));
+    }
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
@@ -4334,7 +4334,7 @@ module.exports = __toCommonJS(dist_src_exports);
 var import_universal_user_agent = __nccwpck_require__(5030);
 
 // pkg/dist-src/version.js
-var VERSION = "9.0.2";
+var VERSION = "9.0.3";
 
 // pkg/dist-src/defaults.js
 var userAgent = `octokit-endpoint.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`;
@@ -4361,12 +4361,24 @@ function lowercaseKeys(object) {
   }, {});
 }
 
+// pkg/dist-src/util/is-plain-object.js
+function isPlainObject(value) {
+  if (typeof value !== "object" || value === null)
+    return false;
+  if (Object.prototype.toString.call(value) !== "[object Object]")
+    return false;
+  const proto = Object.getPrototypeOf(value);
+  if (proto === null)
+    return true;
+  const Ctor = Object.prototype.hasOwnProperty.call(proto, "constructor") && proto.constructor;
+  return typeof Ctor === "function" && Ctor instanceof Ctor && Function.prototype.call(Ctor) === Function.prototype.call(value);
+}
+
 // pkg/dist-src/util/merge-deep.js
-var import_is_plain_object = __nccwpck_require__(3287);
 function mergeDeep(defaults, options) {
   const result = Object.assign({}, defaults);
   Object.keys(options).forEach((key) => {
-    if ((0, import_is_plain_object.isPlainObject)(options[key])) {
+    if (isPlainObject(options[key])) {
       if (!(key in defaults))
         Object.assign(result, { [key]: options[key] });
       else
@@ -7528,10 +7540,22 @@ var import_endpoint = __nccwpck_require__(9440);
 var import_universal_user_agent = __nccwpck_require__(5030);
 
 // pkg/dist-src/version.js
-var VERSION = "8.1.5";
+var VERSION = "8.1.6";
+
+// pkg/dist-src/is-plain-object.js
+function isPlainObject(value) {
+  if (typeof value !== "object" || value === null)
+    return false;
+  if (Object.prototype.toString.call(value) !== "[object Object]")
+    return false;
+  const proto = Object.getPrototypeOf(value);
+  if (proto === null)
+    return true;
+  const Ctor = Object.prototype.hasOwnProperty.call(proto, "constructor") && proto.constructor;
+  return typeof Ctor === "function" && Ctor instanceof Ctor && Function.prototype.call(Ctor) === Function.prototype.call(value);
+}
 
 // pkg/dist-src/fetch-wrapper.js
-var import_is_plain_object = __nccwpck_require__(3287);
 var import_request_error = __nccwpck_require__(537);
 
 // pkg/dist-src/get-buffer-response.js
@@ -7544,7 +7568,7 @@ function fetchWrapper(requestOptions) {
   var _a, _b, _c;
   const log = requestOptions.request && requestOptions.request.log ? requestOptions.request.log : console;
   const parseSuccessResponseBody = ((_a = requestOptions.request) == null ? void 0 : _a.parseSuccessResponseBody) !== false;
-  if ((0, import_is_plain_object.isPlainObject)(requestOptions.body) || Array.isArray(requestOptions.body)) {
+  if (isPlainObject(requestOptions.body) || Array.isArray(requestOptions.body)) {
     requestOptions.body = JSON.stringify(requestOptions.body);
   }
   let headers = {};
@@ -7962,52 +7986,6 @@ class Deprecation extends Error {
 }
 
 exports.Deprecation = Deprecation;
-
-
-/***/ }),
-
-/***/ 3287:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-
-/*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-function isObject(o) {
-  return Object.prototype.toString.call(o) === '[object Object]';
-}
-
-function isPlainObject(o) {
-  var ctor,prot;
-
-  if (isObject(o) === false) return false;
-
-  // If has modified constructor
-  ctor = o.constructor;
-  if (ctor === undefined) return true;
-
-  // If has modified prototype
-  prot = ctor.prototype;
-  if (isObject(prot) === false) return false;
-
-  // If constructor does not have an Object-specific method
-  if (prot.hasOwnProperty('isPrototypeOf') === false) {
-    return false;
-  }
-
-  // Most likely a plain Object
-  return true;
-}
-
-exports.isPlainObject = isPlainObject;
 
 
 /***/ }),
@@ -10012,6 +9990,7 @@ const MockAgent = __nccwpck_require__(6771)
 const MockPool = __nccwpck_require__(6193)
 const mockErrors = __nccwpck_require__(888)
 const ProxyAgent = __nccwpck_require__(7858)
+const RetryHandler = __nccwpck_require__(2286)
 const { getGlobalDispatcher, setGlobalDispatcher } = __nccwpck_require__(1892)
 const DecoratorHandler = __nccwpck_require__(6930)
 const RedirectHandler = __nccwpck_require__(2860)
@@ -10033,6 +10012,7 @@ module.exports.Pool = Pool
 module.exports.BalancedPool = BalancedPool
 module.exports.Agent = Agent
 module.exports.ProxyAgent = ProxyAgent
+module.exports.RetryHandler = RetryHandler
 
 module.exports.DecoratorHandler = DecoratorHandler
 module.exports.RedirectHandler = RedirectHandler
@@ -11315,6 +11295,8 @@ const kBody = Symbol('kBody')
 const kAbort = Symbol('abort')
 const kContentType = Symbol('kContentType')
 
+const noop = () => {}
+
 module.exports = class BodyReadable extends Readable {
   constructor ({
     resume,
@@ -11448,37 +11430,50 @@ module.exports = class BodyReadable extends Readable {
     return this[kBody]
   }
 
-  async dump (opts) {
+  dump (opts) {
     let limit = opts && Number.isFinite(opts.limit) ? opts.limit : 262144
     const signal = opts && opts.signal
-    const abortFn = () => {
-      this.destroy()
-    }
-    let signalListenerCleanup
+
     if (signal) {
-      if (typeof signal !== 'object' || !('aborted' in signal)) {
-        throw new InvalidArgumentError('signal must be an AbortSignal')
-      }
-      util.throwIfAborted(signal)
-      signalListenerCleanup = util.addAbortListener(signal, abortFn)
-    }
-    try {
-      for await (const chunk of this) {
-        util.throwIfAborted(signal)
-        limit -= Buffer.byteLength(chunk)
-        if (limit < 0) {
-          return
+      try {
+        if (typeof signal !== 'object' || !('aborted' in signal)) {
+          throw new InvalidArgumentError('signal must be an AbortSignal')
         }
-      }
-    } catch {
-      util.throwIfAborted(signal)
-    } finally {
-      if (typeof signalListenerCleanup === 'function') {
-        signalListenerCleanup()
-      } else if (signalListenerCleanup) {
-        signalListenerCleanup[Symbol.dispose]()
+        util.throwIfAborted(signal)
+      } catch (err) {
+        return Promise.reject(err)
       }
     }
+
+    if (this.closed) {
+      return Promise.resolve(null)
+    }
+
+    return new Promise((resolve, reject) => {
+      const signalListenerCleanup = signal
+        ? util.addAbortListener(signal, () => {
+          this.destroy()
+        })
+        : noop
+
+      this
+        .on('close', function () {
+          signalListenerCleanup()
+          if (signal?.aborted) {
+            reject(signal.reason || Object.assign(new Error('The operation was aborted'), { name: 'AbortError' }))
+          } else {
+            resolve(null)
+          }
+        })
+        .on('error', noop)
+        .on('data', function (chunk) {
+          limit -= chunk.length
+          if (limit <= 0) {
+            this.destroy()
+          }
+        })
+        .resume()
+    })
   }
 }
 
@@ -14116,7 +14111,7 @@ async function connect (client) {
     const idx = hostname.indexOf(']')
 
     assert(idx !== -1)
-    const ip = hostname.substr(1, idx - 1)
+    const ip = hostname.substring(1, idx)
 
     assert(net.isIP(ip))
     hostname = ip
@@ -14615,6 +14610,7 @@ function writeH2 (client, session, request) {
     return false
   }
 
+  /** @type {import('node:http2').ClientHttp2Stream} */
   let stream
   const h2State = client[kHTTP2SessionState]
 
@@ -14710,14 +14706,10 @@ function writeH2 (client, session, request) {
   const shouldEndStream = method === 'GET' || method === 'HEAD'
   if (expectContinue) {
     headers[HTTP2_HEADER_EXPECT] = '100-continue'
-    /**
-     * @type {import('node:http2').ClientHttp2Stream}
-     */
     stream = session.request(headers, { endStream: shouldEndStream, signal })
 
     stream.once('continue', writeBodyH2)
   } else {
-    /** @type {import('node:http2').ClientHttp2Stream} */
     stream = session.request(headers, {
       endStream: shouldEndStream,
       signal
@@ -14729,7 +14721,9 @@ function writeH2 (client, session, request) {
   ++h2State.openStreams
 
   stream.once('response', headers => {
-    if (request.onHeaders(Number(headers[HTTP2_HEADER_STATUS]), headers, stream.resume.bind(stream), '') === false) {
+    const { [HTTP2_HEADER_STATUS]: statusCode, ...realHeaders } = headers
+
+    if (request.onHeaders(Number(statusCode), realHeaders, stream.resume.bind(stream), '') === false) {
       stream.pause()
     }
   })
@@ -14905,7 +14899,11 @@ function writeStream ({ h2stream, body, client, request, socket, contentLength, 
     }
   }
   const onAbort = function () {
-    onFinished(new RequestAbortedError())
+    if (finished) {
+      return
+    }
+    const err = new RequestAbortedError()
+    queueMicrotask(() => onFinished(err))
   }
   const onFinished = function (err) {
     if (finished) {
@@ -16510,6 +16508,19 @@ class ResponseExceededMaxSizeError extends UndiciError {
   }
 }
 
+class RequestRetryError extends UndiciError {
+  constructor (message, code, { headers, data }) {
+    super(message)
+    Error.captureStackTrace(this, RequestRetryError)
+    this.name = 'RequestRetryError'
+    this.message = message || 'Request retry error'
+    this.code = 'UND_ERR_REQ_RETRY'
+    this.statusCode = code
+    this.data = data
+    this.headers = headers
+  }
+}
+
 module.exports = {
   HTTPParserError,
   UndiciError,
@@ -16529,7 +16540,8 @@ module.exports = {
   NotSupportedError,
   ResponseContentLengthMismatchError,
   BalancedPoolMissingUpstreamError,
-  ResponseExceededMaxSizeError
+  ResponseExceededMaxSizeError,
+  RequestRetryError
 }
 
 
@@ -16770,11 +16782,7 @@ class Request {
 
   onBodySent (chunk) {
     if (this[kHandler].onBodySent) {
-      try {
-        this[kHandler].onBodySent(chunk)
-      } catch (err) {
-        this.onError(err)
-      }
+      return this[kHandler].onBodySent(chunk)
     }
   }
 
@@ -16784,11 +16792,7 @@ class Request {
     }
 
     if (this[kHandler].onRequestSent) {
-      try {
-        this[kHandler].onRequestSent()
-      } catch (err) {
-        this.onError(err)
-      }
+      return this[kHandler].onRequestSent()
     }
   }
 
@@ -17088,7 +17092,8 @@ module.exports = {
   kHTTP2BuildRequest: Symbol('http2 build request'),
   kHTTP1BuildRequest: Symbol('http1 build request'),
   kHTTP2CopyHeaders: Symbol('http2 copy headers'),
-  kHTTPConnVersion: Symbol('http connection version')
+  kHTTPConnVersion: Symbol('http connection version'),
+  kRetryHandlerDefaultRetry: Symbol('retry agent default retry')
 }
 
 
@@ -17225,13 +17230,13 @@ function getHostname (host) {
     const idx = host.indexOf(']')
 
     assert(idx !== -1)
-    return host.substr(1, idx - 1)
+    return host.substring(1, idx)
   }
 
   const idx = host.indexOf(':')
   if (idx === -1) return host
 
-  return host.substr(0, idx)
+  return host.substring(0, idx)
 }
 
 // IP addresses are not valid server names per RFC6066
@@ -17328,7 +17333,7 @@ function parseHeaders (headers, obj = {}) {
 
     if (!val) {
       if (Array.isArray(headers[i + 1])) {
-        obj[key] = headers[i + 1]
+        obj[key] = headers[i + 1].map(x => x.toString('utf8'))
       } else {
         obj[key] = headers[i + 1].toString('utf8')
       }
@@ -17531,16 +17536,7 @@ function throwIfAborted (signal) {
   }
 }
 
-let events
 function addAbortListener (signal, listener) {
-  if (typeof Symbol.dispose === 'symbol') {
-    if (!events) {
-      events = __nccwpck_require__(2361)
-    }
-    if (typeof events.addAbortListener === 'function' && 'aborted' in signal) {
-      return events.addAbortListener(signal, listener)
-    }
-  }
   if ('addEventListener' in signal) {
     signal.addEventListener('abort', listener, { once: true })
     return () => signal.removeEventListener('abort', listener)
@@ -17562,6 +17558,21 @@ function toUSVString (val) {
   }
 
   return `${val}`
+}
+
+// Parsed accordingly to RFC 9110
+// https://www.rfc-editor.org/rfc/rfc9110#field.content-range
+function parseRangeHeader (range) {
+  if (range == null || range === '') return { start: 0, end: null, size: null }
+
+  const m = range ? range.match(/^bytes (\d+)-(\d+)\/(\d+)?$/) : null
+  return m
+    ? {
+        start: parseInt(m[1]),
+        end: m[2] ? parseInt(m[2]) : null,
+        size: m[3] ? parseInt(m[3]) : null
+      }
+    : null
 }
 
 const kEnumerableProperty = Object.create(null)
@@ -17597,9 +17608,11 @@ module.exports = {
   buildURL,
   throwIfAborted,
   addAbortListener,
+  parseRangeHeader,
   nodeMajor,
   nodeMinor,
-  nodeHasAutoSelectFamily: nodeMajor > 18 || (nodeMajor === 18 && nodeMinor >= 13)
+  nodeHasAutoSelectFamily: nodeMajor > 18 || (nodeMajor === 18 && nodeMinor >= 13),
+  safeHTTPMethods: ['GET', 'HEAD', 'OPTIONS', 'TRACE']
 }
 
 
@@ -19937,6 +19950,13 @@ const kHeadersMap = Symbol('headers map')
 const kHeadersSortedMap = Symbol('headers map sorted')
 
 /**
+ * @param {number} code
+ */
+function isHTTPWhiteSpaceCharCode (code) {
+  return code === 0x00a || code === 0x00d || code === 0x009 || code === 0x020
+}
+
+/**
  * @see https://fetch.spec.whatwg.org/#concept-header-value-normalize
  * @param {string} potentialValue
  */
@@ -19944,12 +19964,12 @@ function headerValueNormalize (potentialValue) {
   //  To normalize a byte sequence potentialValue, remove
   //  any leading and trailing HTTP whitespace bytes from
   //  potentialValue.
+  let i = 0; let j = potentialValue.length
 
-  // Trimming the end with `.replace()` and a RegExp is typically subject to
-  // ReDoS. This is safer and faster.
-  let i = potentialValue.length
-  while (/[\r\n\t ]/.test(potentialValue.charAt(--i)));
-  return potentialValue.slice(0, i + 1).replace(/^[\r\n\t ]+/, '')
+  while (j > i && isHTTPWhiteSpaceCharCode(potentialValue.charCodeAt(j - 1))) --j
+  while (j > i && isHTTPWhiteSpaceCharCode(potentialValue.charCodeAt(i))) ++i
+
+  return i === 0 && j === potentialValue.length ? potentialValue : potentialValue.substring(i, j)
 }
 
 function fill (headers, object) {
@@ -19958,7 +19978,8 @@ function fill (headers, object) {
   // 1. If object is a sequence, then for each header in object:
   // Note: webidl conversion to array has already been done.
   if (Array.isArray(object)) {
-    for (const header of object) {
+    for (let i = 0; i < object.length; ++i) {
+      const header = object[i]
       // 1. If header does not contain exactly two items, then throw a TypeError.
       if (header.length !== 2) {
         throw webidl.errors.exception({
@@ -19968,15 +19989,16 @@ function fill (headers, object) {
       }
 
       // 2. Append (header’s first item, header’s second item) to headers.
-      headers.append(header[0], header[1])
+      appendHeader(headers, header[0], header[1])
     }
   } else if (typeof object === 'object' && object !== null) {
     // Note: null should throw
 
     // 2. Otherwise, object is a record, then for each key → value in object,
     //    append (key, value) to headers
-    for (const [key, value] of Object.entries(object)) {
-      headers.append(key, value)
+    const keys = Object.keys(object)
+    for (let i = 0; i < keys.length; ++i) {
+      appendHeader(headers, keys[i], object[keys[i]])
     }
   } else {
     throw webidl.errors.conversionFailed({
@@ -19987,6 +20009,50 @@ function fill (headers, object) {
   }
 }
 
+/**
+ * @see https://fetch.spec.whatwg.org/#concept-headers-append
+ */
+function appendHeader (headers, name, value) {
+  // 1. Normalize value.
+  value = headerValueNormalize(value)
+
+  // 2. If name is not a header name or value is not a
+  //    header value, then throw a TypeError.
+  if (!isValidHeaderName(name)) {
+    throw webidl.errors.invalidArgument({
+      prefix: 'Headers.append',
+      value: name,
+      type: 'header name'
+    })
+  } else if (!isValidHeaderValue(value)) {
+    throw webidl.errors.invalidArgument({
+      prefix: 'Headers.append',
+      value,
+      type: 'header value'
+    })
+  }
+
+  // 3. If headers’s guard is "immutable", then throw a TypeError.
+  // 4. Otherwise, if headers’s guard is "request" and name is a
+  //    forbidden header name, return.
+  // Note: undici does not implement forbidden header names
+  if (headers[kGuard] === 'immutable') {
+    throw new TypeError('immutable')
+  } else if (headers[kGuard] === 'request-no-cors') {
+    // 5. Otherwise, if headers’s guard is "request-no-cors":
+    // TODO
+  }
+
+  // 6. Otherwise, if headers’s guard is "response" and name is a
+  //    forbidden response-header name, return.
+
+  // 7. Append (name, value) to headers’s header list.
+  return headers[kHeadersList].append(name, value)
+
+  // 8. If headers’s guard is "request-no-cors", then remove
+  //    privileged no-CORS request headers from headers
+}
+
 class HeadersList {
   /** @type {[string, string][]|null} */
   cookies = null
@@ -19995,7 +20061,7 @@ class HeadersList {
     if (init instanceof HeadersList) {
       this[kHeadersMap] = new Map(init[kHeadersMap])
       this[kHeadersSortedMap] = init[kHeadersSortedMap]
-      this.cookies = init.cookies
+      this.cookies = init.cookies === null ? null : [...init.cookies]
     } else {
       this[kHeadersMap] = new Map(init)
       this[kHeadersSortedMap] = null
@@ -20057,7 +20123,7 @@ class HeadersList {
     //    the first such header to value and remove the
     //    others.
     // 2. Otherwise, append header (name, value) to list.
-    return this[kHeadersMap].set(lowercaseName, { name, value })
+    this[kHeadersMap].set(lowercaseName, { name, value })
   }
 
   // https://fetch.spec.whatwg.org/#concept-header-list-delete
@@ -20070,20 +20136,18 @@ class HeadersList {
       this.cookies = null
     }
 
-    return this[kHeadersMap].delete(name)
+    this[kHeadersMap].delete(name)
   }
 
   // https://fetch.spec.whatwg.org/#concept-header-list-get
   get (name) {
-    // 1. If list does not contain name, then return null.
-    if (!this.contains(name)) {
-      return null
-    }
+    const value = this[kHeadersMap].get(name.toLowerCase())
 
+    // 1. If list does not contain name, then return null.
     // 2. Return the values of all headers in list whose name
     //    is a byte-case-insensitive match for name,
     //    separated from each other by 0x2C 0x20, in order.
-    return this[kHeadersMap].get(name.toLowerCase())?.value ?? null
+    return value === undefined ? null : value.value
   }
 
   * [Symbol.iterator] () {
@@ -20132,43 +20196,7 @@ class Headers {
     name = webidl.converters.ByteString(name)
     value = webidl.converters.ByteString(value)
 
-    // 1. Normalize value.
-    value = headerValueNormalize(value)
-
-    // 2. If name is not a header name or value is not a
-    //    header value, then throw a TypeError.
-    if (!isValidHeaderName(name)) {
-      throw webidl.errors.invalidArgument({
-        prefix: 'Headers.append',
-        value: name,
-        type: 'header name'
-      })
-    } else if (!isValidHeaderValue(value)) {
-      throw webidl.errors.invalidArgument({
-        prefix: 'Headers.append',
-        value,
-        type: 'header value'
-      })
-    }
-
-    // 3. If headers’s guard is "immutable", then throw a TypeError.
-    // 4. Otherwise, if headers’s guard is "request" and name is a
-    //    forbidden header name, return.
-    // Note: undici does not implement forbidden header names
-    if (this[kGuard] === 'immutable') {
-      throw new TypeError('immutable')
-    } else if (this[kGuard] === 'request-no-cors') {
-      // 5. Otherwise, if headers’s guard is "request-no-cors":
-      // TODO
-    }
-
-    // 6. Otherwise, if headers’s guard is "response" and name is a
-    //    forbidden response-header name, return.
-
-    // 7. Append (name, value) to headers’s header list.
-    // 8. If headers’s guard is "request-no-cors", then remove
-    //    privileged no-CORS request headers from headers
-    return this[kHeadersList].append(name, value)
+    return appendHeader(this, name, value)
   }
 
   // https://fetch.spec.whatwg.org/#dom-headers-delete
@@ -20213,7 +20241,7 @@ class Headers {
     // 7. Delete name from this’s header list.
     // 8. If this’s guard is "request-no-cors", then remove
     //    privileged no-CORS request headers from this.
-    return this[kHeadersList].delete(name)
+    this[kHeadersList].delete(name)
   }
 
   // https://fetch.spec.whatwg.org/#dom-headers-get
@@ -20306,7 +20334,7 @@ class Headers {
     // 7. Set (name, value) in this’s header list.
     // 8. If this’s guard is "request-no-cors", then remove
     //    privileged no-CORS request headers from this
-    return this[kHeadersList].set(name, value)
+    this[kHeadersList].set(name, value)
   }
 
   // https://fetch.spec.whatwg.org/#dom-headers-getsetcookie
@@ -20342,7 +20370,8 @@ class Headers {
     const cookies = this[kHeadersList].cookies
 
     // 3. For each name of names:
-    for (const [name, value] of names) {
+    for (let i = 0; i < names.length; ++i) {
+      const [name, value] = names[i]
       // 1. If name is `set-cookie`, then:
       if (name === 'set-cookie') {
         // 1. Let values be a list of all values of headers in list whose name
@@ -20350,8 +20379,8 @@ class Headers {
 
         // 2. For each value of values:
         // 1. Append (name, value) to headers.
-        for (const value of cookies) {
-          headers.push([name, value])
+        for (let j = 0; j < cookies.length; ++j) {
+          headers.push([name, cookies[j]])
         }
       } else {
         // 2. Otherwise:
@@ -20375,6 +20404,12 @@ class Headers {
   keys () {
     webidl.brandCheck(this, Headers)
 
+    if (this[kGuard] === 'immutable') {
+      const value = this[kHeadersSortedMap]
+      return makeIterator(() => value, 'Headers',
+        'key')
+    }
+
     return makeIterator(
       () => [...this[kHeadersSortedMap].values()],
       'Headers',
@@ -20385,6 +20420,12 @@ class Headers {
   values () {
     webidl.brandCheck(this, Headers)
 
+    if (this[kGuard] === 'immutable') {
+      const value = this[kHeadersSortedMap]
+      return makeIterator(() => value, 'Headers',
+        'value')
+    }
+
     return makeIterator(
       () => [...this[kHeadersSortedMap].values()],
       'Headers',
@@ -20394,6 +20435,12 @@ class Headers {
 
   entries () {
     webidl.brandCheck(this, Headers)
+
+    if (this[kGuard] === 'immutable') {
+      const value = this[kHeadersSortedMap]
+      return makeIterator(() => value, 'Headers',
+        'key+value')
+    }
 
     return makeIterator(
       () => [...this[kHeadersSortedMap].values()],
@@ -22437,7 +22484,7 @@ async function httpNetworkFetch (
         path: url.pathname + url.search,
         origin: url.origin,
         method: request.method,
-        body: fetchParams.controller.dispatcher.isMockActive ? request.body && request.body.source : body,
+        body: fetchParams.controller.dispatcher.isMockActive ? request.body && (request.body.source || request.body.stream) : body,
         headers: request.headersList.entries,
         maxRedirections: 0,
         upgrade: request.mode === 'websocket' ? 'websocket' : undefined
@@ -22482,7 +22529,7 @@ async function httpNetworkFetch (
                 location = val
               }
 
-              headers.append(key, val)
+              headers[kHeadersList].append(key, val)
             }
           } else {
             const keys = Object.keys(headersList)
@@ -22496,7 +22543,7 @@ async function httpNetworkFetch (
                 location = val
               }
 
-              headers.append(key, val)
+              headers[kHeadersList].append(key, val)
             }
           }
 
@@ -22600,7 +22647,7 @@ async function httpNetworkFetch (
             const key = headersList[n + 0].toString('latin1')
             const val = headersList[n + 1].toString('latin1')
 
-            headers.append(key, val)
+            headers[kHeadersList].append(key, val)
           }
 
           resolve({
@@ -22949,11 +22996,11 @@ class Request {
       // 2. If method is not a method or method is a forbidden method, then
       // throw a TypeError.
       if (!isValidHTTPToken(init.method)) {
-        throw TypeError(`'${init.method}' is not a valid HTTP method.`)
+        throw new TypeError(`'${init.method}' is not a valid HTTP method.`)
       }
 
       if (forbiddenMethodsSet.has(method.toUpperCase())) {
-        throw TypeError(`'${init.method}' HTTP method is unsupported.`)
+        throw new TypeError(`'${init.method}' HTTP method is unsupported.`)
       }
 
       // 3. Normalize method.
@@ -24289,52 +24336,57 @@ function isValidReasonPhrase (statusText) {
   return true
 }
 
-function isTokenChar (c) {
-  return !(
-    c >= 0x7f ||
-    c <= 0x20 ||
-    c === '(' ||
-    c === ')' ||
-    c === '<' ||
-    c === '>' ||
-    c === '@' ||
-    c === ',' ||
-    c === ';' ||
-    c === ':' ||
-    c === '\\' ||
-    c === '"' ||
-    c === '/' ||
-    c === '[' ||
-    c === ']' ||
-    c === '?' ||
-    c === '=' ||
-    c === '{' ||
-    c === '}'
-  )
+/**
+ * @see https://tools.ietf.org/html/rfc7230#section-3.2.6
+ * @param {number} c
+ */
+function isTokenCharCode (c) {
+  switch (c) {
+    case 0x22:
+    case 0x28:
+    case 0x29:
+    case 0x2c:
+    case 0x2f:
+    case 0x3a:
+    case 0x3b:
+    case 0x3c:
+    case 0x3d:
+    case 0x3e:
+    case 0x3f:
+    case 0x40:
+    case 0x5b:
+    case 0x5c:
+    case 0x5d:
+    case 0x7b:
+    case 0x7d:
+      // DQUOTE and "(),/:;<=>?@[\]{}"
+      return false
+    default:
+      // VCHAR %x21-7E
+      return c >= 0x21 && c <= 0x7e
+  }
 }
 
-// See RFC 7230, Section 3.2.6.
-// https://github.com/chromium/chromium/blob/d7da0240cae77824d1eda25745c4022757499131/third_party/blink/renderer/platform/network/http_parsers.cc#L321
+/**
+ * @param {string} characters
+ */
 function isValidHTTPToken (characters) {
-  if (!characters || typeof characters !== 'string') {
+  if (characters.length === 0) {
     return false
   }
   for (let i = 0; i < characters.length; ++i) {
-    const c = characters.charCodeAt(i)
-    if (c > 0x7f || !isTokenChar(c)) {
+    if (!isTokenCharCode(characters.charCodeAt(i))) {
       return false
     }
   }
   return true
 }
 
-// https://fetch.spec.whatwg.org/#header-name
-// https://github.com/chromium/chromium/blob/b3d37e6f94f87d59e44662d6078f6a12de845d17/net/http/http_util.cc#L342
+/**
+ * @see https://fetch.spec.whatwg.org/#header-name
+ * @param {string} potentialValue
+ */
 function isValidHeaderName (potentialValue) {
-  if (potentialValue.length === 0) {
-    return false
-  }
-
   return isValidHTTPToken(potentialValue)
 }
 
@@ -25667,12 +25719,10 @@ webidl.converters.ByteString = function (V) {
   // 2. If the value of any element of x is greater than
   //    255, then throw a TypeError.
   for (let index = 0; index < x.length; index++) {
-    const charCode = x.charCodeAt(index)
-
-    if (charCode > 255) {
+    if (x.charCodeAt(index) > 255) {
       throw new TypeError(
         'Cannot convert argument to a ByteString because the character at ' +
-        `index ${index} has a value of ${charCode} which is greater than 255.`
+        `index ${index} has a value of ${x.charCodeAt(index)} which is greater than 255.`
       )
     }
   }
@@ -27347,6 +27397,349 @@ function cleanRequestHeaders (headers, removeContent, unknownOrigin) {
 }
 
 module.exports = RedirectHandler
+
+
+/***/ }),
+
+/***/ 2286:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const assert = __nccwpck_require__(8061)
+
+const { kRetryHandlerDefaultRetry } = __nccwpck_require__(2785)
+const { RequestRetryError } = __nccwpck_require__(8045)
+const { isDisturbed, parseHeaders, parseRangeHeader } = __nccwpck_require__(3983)
+
+function calculateRetryAfterHeader (retryAfter) {
+  const current = Date.now()
+  const diff = new Date(retryAfter).getTime() - current
+
+  return diff
+}
+
+class RetryHandler {
+  constructor (opts, handlers) {
+    const { retryOptions, ...dispatchOpts } = opts
+    const {
+      // Retry scoped
+      retry: retryFn,
+      maxRetries,
+      maxTimeout,
+      minTimeout,
+      timeoutFactor,
+      // Response scoped
+      methods,
+      errorCodes,
+      retryAfter,
+      statusCodes
+    } = retryOptions ?? {}
+
+    this.dispatch = handlers.dispatch
+    this.handler = handlers.handler
+    this.opts = dispatchOpts
+    this.abort = null
+    this.aborted = false
+    this.retryOpts = {
+      retry: retryFn ?? RetryHandler[kRetryHandlerDefaultRetry],
+      retryAfter: retryAfter ?? true,
+      maxTimeout: maxTimeout ?? 30 * 1000, // 30s,
+      timeout: minTimeout ?? 500, // .5s
+      timeoutFactor: timeoutFactor ?? 2,
+      maxRetries: maxRetries ?? 5,
+      // What errors we should retry
+      methods: methods ?? ['GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE', 'TRACE'],
+      // Indicates which errors to retry
+      statusCodes: statusCodes ?? [500, 502, 503, 504, 429],
+      // List of errors to retry
+      errorCodes: errorCodes ?? [
+        'ECONNRESET',
+        'ECONNREFUSED',
+        'ENOTFOUND',
+        'ENETDOWN',
+        'ENETUNREACH',
+        'EHOSTDOWN',
+        'EHOSTUNREACH',
+        'EPIPE'
+      ]
+    }
+
+    this.retryCount = 0
+    this.start = 0
+    this.end = null
+    this.etag = null
+    this.resume = null
+
+    // Handle possible onConnect duplication
+    this.handler.onConnect(reason => {
+      this.aborted = true
+      if (this.abort) {
+        this.abort(reason)
+      } else {
+        this.reason = reason
+      }
+    })
+  }
+
+  onRequestSent () {
+    if (this.handler.onRequestSent) {
+      this.handler.onRequestSent()
+    }
+  }
+
+  onUpgrade (statusCode, headers, socket) {
+    if (this.handler.onUpgrade) {
+      this.handler.onUpgrade(statusCode, headers, socket)
+    }
+  }
+
+  onConnect (abort) {
+    if (this.aborted) {
+      abort(this.reason)
+    } else {
+      this.abort = abort
+    }
+  }
+
+  onBodySent (chunk) {
+    return this.handler.onBodySent(chunk)
+  }
+
+  static [kRetryHandlerDefaultRetry] (err, { state, opts }, cb) {
+    const { statusCode, code, headers } = err
+    const { method, retryOptions } = opts
+    const {
+      maxRetries,
+      timeout,
+      maxTimeout,
+      timeoutFactor,
+      statusCodes,
+      errorCodes,
+      methods
+    } = retryOptions
+    let { counter, currentTimeout } = state
+
+    currentTimeout =
+      currentTimeout != null && currentTimeout > 0 ? currentTimeout : timeout
+
+    // Any code that is not a Undici's originated and allowed to retry
+    if (
+      code &&
+      code !== 'UND_ERR_REQ_RETRY' &&
+      code !== 'UND_ERR_SOCKET' &&
+      !errorCodes.includes(code)
+    ) {
+      cb(err)
+      return
+    }
+
+    // If a set of method are provided and the current method is not in the list
+    if (Array.isArray(methods) && !methods.includes(method)) {
+      cb(err)
+      return
+    }
+
+    // If a set of status code are provided and the current status code is not in the list
+    if (
+      statusCode != null &&
+      Array.isArray(statusCodes) &&
+      !statusCodes.includes(statusCode)
+    ) {
+      cb(err)
+      return
+    }
+
+    // If we reached the max number of retries
+    if (counter > maxRetries) {
+      cb(err)
+      return
+    }
+
+    let retryAfterHeader = headers != null && headers['retry-after']
+    if (retryAfterHeader) {
+      retryAfterHeader = Number(retryAfterHeader)
+      retryAfterHeader = isNaN(retryAfterHeader)
+        ? calculateRetryAfterHeader(retryAfterHeader)
+        : retryAfterHeader * 1e3 // Retry-After is in seconds
+    }
+
+    const retryTimeout =
+      retryAfterHeader > 0
+        ? Math.min(retryAfterHeader, maxTimeout)
+        : Math.min(currentTimeout * timeoutFactor ** counter, maxTimeout)
+
+    state.currentTimeout = retryTimeout
+
+    setTimeout(() => cb(null), retryTimeout)
+  }
+
+  onHeaders (statusCode, rawHeaders, resume, statusMessage) {
+    const headers = parseHeaders(rawHeaders)
+
+    this.retryCount += 1
+
+    if (statusCode >= 300) {
+      this.abort(
+        new RequestRetryError('Request failed', statusCode, {
+          headers,
+          count: this.retryCount
+        })
+      )
+      return false
+    }
+
+    // Checkpoint for resume from where we left it
+    if (this.resume != null) {
+      this.resume = null
+
+      if (statusCode !== 206) {
+        return true
+      }
+
+      const contentRange = parseRangeHeader(headers['content-range'])
+      // If no content range
+      if (!contentRange) {
+        this.abort(
+          new RequestRetryError('Content-Range mismatch', statusCode, {
+            headers,
+            count: this.retryCount
+          })
+        )
+        return false
+      }
+
+      // Let's start with a weak etag check
+      if (this.etag != null && this.etag !== headers.etag) {
+        this.abort(
+          new RequestRetryError('ETag mismatch', statusCode, {
+            headers,
+            count: this.retryCount
+          })
+        )
+        return false
+      }
+
+      const { start, size, end = size } = contentRange
+
+      assert(this.start === start, 'content-range mismatch')
+      assert(this.end == null || this.end === end, 'content-range mismatch')
+
+      this.resume = resume
+      return true
+    }
+
+    if (this.end == null) {
+      if (statusCode === 206) {
+        // First time we receive 206
+        const range = parseRangeHeader(headers['content-range'])
+
+        if (range == null) {
+          return this.handler.onHeaders(
+            statusCode,
+            rawHeaders,
+            resume,
+            statusMessage
+          )
+        }
+
+        const { start, size, end = size } = range
+
+        assert(
+          start != null && Number.isFinite(start) && this.start !== start,
+          'content-range mismatch'
+        )
+        assert(Number.isFinite(start))
+        assert(
+          end != null && Number.isFinite(end) && this.end !== end,
+          'invalid content-length'
+        )
+
+        this.start = start
+        this.end = end
+      }
+
+      // We make our best to checkpoint the body for further range headers
+      if (this.end == null) {
+        const contentLength = headers['content-length']
+        this.end = contentLength != null ? Number(contentLength) : null
+      }
+
+      assert(Number.isFinite(this.start))
+      assert(
+        this.end == null || Number.isFinite(this.end),
+        'invalid content-length'
+      )
+
+      this.resume = resume
+      this.etag = headers.etag != null ? headers.etag : null
+
+      return this.handler.onHeaders(
+        statusCode,
+        rawHeaders,
+        resume,
+        statusMessage
+      )
+    }
+
+    const err = new RequestRetryError('Request failed', statusCode, {
+      headers,
+      count: this.retryCount
+    })
+
+    this.abort(err)
+
+    return false
+  }
+
+  onData (chunk) {
+    this.start += chunk.length
+
+    return this.handler.onData(chunk)
+  }
+
+  onComplete (rawTrailers) {
+    this.retryCount = 0
+    return this.handler.onComplete(rawTrailers)
+  }
+
+  onError (err) {
+    if (this.aborted || isDisturbed(this.opts.body)) {
+      return this.handler.onError(err)
+    }
+
+    this.retryOpts.retry(
+      err,
+      {
+        state: { counter: this.retryCount++, currentTimeout: this.retryAfter },
+        opts: { retryOptions: this.retryOpts, ...this.opts }
+      },
+      onRetry.bind(this)
+    )
+
+    function onRetry (err) {
+      if (err != null || this.aborted || isDisturbed(this.opts.body)) {
+        return this.handler.onError(err)
+      }
+
+      if (this.start !== 0) {
+        this.opts = {
+          ...this.opts,
+          headers: {
+            ...this.opts.headers,
+            range: `bytes=${this.start}-${this.end ?? ''}`
+          }
+        }
+      }
+
+      try {
+        this.dispatch(this.opts, this)
+      } catch (err) {
+        this.handler.onError(err)
+      }
+    }
+  }
+}
+
+module.exports = RetryHandler
 
 
 /***/ }),
@@ -32292,6 +32685,14 @@ module.exports = require("https");
 
 "use strict";
 module.exports = require("net");
+
+/***/ }),
+
+/***/ 8061:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:assert");
 
 /***/ }),
 
