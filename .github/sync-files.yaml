@@ -1,6 +1,8 @@
 - repository: autowarefoundation/autoware
   files:
     - source: .github/stale.yml
+      pre-commands: |
+        sd "status:" ""  {source}
     - source: .github/workflows/github-release.yaml
       pre-commands: |
         sd \
