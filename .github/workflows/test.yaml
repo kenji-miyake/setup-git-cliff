@@ -28,6 +28,9 @@ jobs:
 
       - name: Set up git-cliff
         uses: ./
+        with:
+          target-platform: x86_64-pc-windows-msvc
+          archive-extension: zip
 
       - name: Run git-cliff
         run: |
