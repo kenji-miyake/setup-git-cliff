@@ -1,3 +1,4 @@
+import { promises as fsPromises } from "fs";
 import * as path from "path";
 
 import * as core from "@actions/core";
@@ -23,9 +24,12 @@ async function main() {
   if (!cachedPath) {
     const url = `https://github.com/orhun/git-cliff/releases/download/v${version}/git-cliff-${version}-${targetPlatform}.${archiveExtension}`;
     core.info(`Downloading ${url}`);
-    const tarPath = await tc.downloadTool(url);
+    let archivePath = await tc.downloadTool(url);
+    await fsPromises.rename(archivePath, archivePath + "." + archiveExtension);
+    archivePath += "." + archiveExtension;
     const extractionFunction = archiveExtension === "tar.gz" ? tc.extractTar : tc.extractZip;
-    const extractedFolder = await extractionFunction(tarPath, "/tmp/git-cliff");
+    core.info(`Extracting ${archivePath} with ${extractionFunction.name}`);
+    const extractedFolder = await extractionFunction(archivePath, "/tmp/git-cliff");
     const binFolder = path.join(extractedFolder, `git-cliff-${version}`);
     cachedPath = await tc.cacheDir(binFolder, "git-cliff", version);
   }
