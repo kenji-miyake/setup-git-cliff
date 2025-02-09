@@ -31735,7 +31735,7 @@ paginateRest.VERSION = plugin_paginate_rest_dist_bundle_VERSION;
 
 
 ;// CONCATENATED MODULE: ./node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
-const plugin_rest_endpoint_methods_dist_src_version_VERSION = "13.3.0";
+const plugin_rest_endpoint_methods_dist_src_version_VERSION = "13.3.1";
 
 //# sourceMappingURL=version.js.map
 
